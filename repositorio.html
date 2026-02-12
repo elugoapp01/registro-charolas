@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Registro - Retorno de Charolas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+
+        :root {
+            --primary: #0A2342;
+            --secondary: #2C4C6B;
+            --accent: #4A89C5;
+            --light: #F5F9FF;
+            --white: #FFFFFF;
+            --gray: #E8EEF2;
+            --text-dark: #1E2B3C;
+            --success: #27AE60;
+            --danger: #E74C3C;
+            --dominos: #00A5B0;
+            --starbucks: #006241;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 12px rgba(10, 35, 66, 0.06);
+        }
+
+        body {
+            background-color: var(--gray);
+            color: var(--text-dark);
+            line-height: 1.4;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo-small {
+            max-width: 70px;
+            height: auto;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .header h1 span {
+            color: var(--accent);
+            font-weight: 300;
+        }
+
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .password-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .password-container h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .password-container input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .password-container input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .password-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--light), var(--white));
+            padding: 10px 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent);
+            box-shadow: var(--box-shadow);
+            flex: 1 1 180px;
+        }
+
+        .stat-card.dominos {
+            border-left-color: var(--dominos);
+        }
+
+        .stat-card.starbucks {
+            border-left-color: var(--starbucks);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--secondary);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-number {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.1;
+        }
+
+        .stat-sub {
+            font-size: 0.7rem;
+            color: var(--secondary);
+            margin-top: 3px;
+        }
+
+        .filtro-fechas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            background-color: var(--light);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .filtro-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .filtro-item label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--secondary);
+            letter-spacing: 0.5px;
+        }
+
+        .filtro-item input {
+            padding: 6px 10px;
+            border: 1.5px solid var(--gray);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-info {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: #F39C12;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid var(--gray);
+            max-height: 400px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;  /* Las columnas se ajustan al contenido */
+}
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid var(--gray);
+            font-size: 0.85rem;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background-color: var(--light);
+        }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-dominos {
+            background-color: rgba(0, 165, 176, 0.1);
+            color: var(--dominos);
+            border: 1px solid var(--dominos);
+        }
+
+        .badge-starbucks {
+            background-color: rgba(0, 98, 65, 0.1);
+            color: var(--starbucks);
+            border: 1px solid var(--starbucks);
+        }
+
+        .badge-turno {
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--secondary);
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .footer {
+            margin-top: 20px;
+            color: var(--secondary);
+            font-size: 0.7rem;
+            text-align: right;
+            border-top: 1px solid var(--gray);
+            padding-top: 15px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 1200px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--danger);
+        }
+
+        .modal-close:hover {
+            opacity: 0.8;
+        }
+
+        .detalle-info {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .detalle-linea1 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .detalle-linea2 {
+            color: var(--secondary);
+            font-style: italic;
+        }
+
+        .detalle-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .detalle-table th {
+            background-color: var(--secondary);
+            color: white;
+            padding: 10px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .detalle-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .btn-accion {
+            padding: 4px 10px;
+            font-size: 0.65rem;
+            white-space: nowrap;
+        }
+
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .header-left { width: 100%; justify-content: center; }
+            .header h1 { font-size: 1.4rem; }
+            .action-bar { flex-direction: column; align-items: flex-start; }
+            .btn-group { width: 100%; }
+            .btn { flex: 1; font-size: 0.7rem; }
+            .filtro-fechas { flex-direction: column; align-items: stretch; }
+            .filtro-item { width: 100%; }
+            .filtro-item input { width: 100%; }
+            td, th { white-space: normal; word-break: break-word; }
+            .badge { white-space: normal; }
+            .badge-turno { white-space: normal; }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header h1 { font-size: 1.2rem; }
+            .stat-number { font-size: 1.2rem; }
+            .btn { font-size: 0.65rem; padding: 6px 10px; }
+            .modal-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+<div class="header-left">
+    <img src="logo.png" alt="Logo" style="height: 50px; width: auto;">
+    <h1>Registro de <span>Charolas</span></h1>
+</div>            <div class="btn-group">
+                <button class="btn btn-info" onclick="window.location.href='formulario.html'">
+                    📝 NUEVO REGISTRO
+                </button>
+                <button class="btn btn-primary" onclick="cargarDatos()">
+                    🔄 ACTUALIZAR
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-container" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-label">Registros HOY</div>
+                <div class="stat-number" id="totalRegistrosHoy">0</div>
+                <div class="stat-sub" id="turnoActualStats">TURNO ACTUAL</div>
+            </div>
+            <div class="stat-card dominos">
+                <div class="stat-label">DOMINO'S - HOY</div>
+                <div class="stat-number" id="totalDominosHoy">0</div>
+                <div class="stat-sub" id="turnoDominos">TURNO ACTUAL</div>
+            </div>
+            <div class="stat-card starbucks">
+                <div class="stat-label">STARBUCKS - HOY</div>
+                <div class="stat-number" id="totalStarbucksHoy">0</div>
+                <div class="stat-sub" id="turnoStarbucks">TURNO ACTUAL</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tiendas HOY</div>
+                <div class="stat-number" id="totalTiendasHoy">0</div>
+                <div class="stat-sub">Capturadas hoy</div>
+            </div>
+        </div>
+
+        <div class="filtro-fechas">
+            <div class="filtro-item">
+                <label>FECHA INICIO</label>
+                <input type="date" id="fechaInicio" value="">
+            </div>
+            <div class="filtro-item">
+                <label>FECHA FIN</label>
+                <input type="date" id="fechaFin" value="">
+            </div>
+            <div class="btn-group" style="margin-left: auto;">
+                <button class="btn btn-success" onclick="exportarExcelConFechas()">
+                    📥 EXPORTAR A EXCEL
+                </button>
+                <button class="btn btn-warning" onclick="toggleModoEliminacion()" id="btnEliminar">
+                    🔐 ELIMINAR REGISTROS
+                </button>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div>
+                <span style="color: var(--secondary); font-size: 0.8rem;" id="fechaActualizacion"></span>
+            </div>
+            <div class="btn-group" id="botonesEliminarTodo" style="display: none;">
+                <button class="btn btn-danger" onclick="eliminarTodosRegistros()">
+                    🗑️ ELIMINAR TODOS
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tablaRepositorio">
+                <thead>
+                    <tr>
+                        <th>Fecha/Hora</th>
+                        <th>Turno</th>
+                        <th>Empleado</th>
+                        <th>Ruta</th>
+                        <th>Bitácora</th>
+                        <th>Unidad</th>
+                        <th>Comentarios</th>
+                        <th>Tiendas</th>
+                        <th>Domino's</th>
+                        <th>Starbucks</th>
+                        <th>Ver</th>
+                        <th id="headerEliminar" style="display: none;">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody"></tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Sistema de control de Registro de retorno de charolas V2.0 | E.Lugo 2026 Derechos reservados
+        </div>
+    </div>
+
+    <div id="passwordModal" class="password-modal">
+        <div class="password-container">
+            <h3>🔐 ACCESO RESTRINGIDO</h3>
+            <p style="margin-bottom: 15px; color: var(--secondary);">Ingrese contraseña de administrador</p>
+            <input type="password" id="passwordInput" placeholder="Contraseña" onkeypress="if(event.key==='Enter'){verificarPassword();}">
+            <div class="password-actions">
+                <button class="btn btn-primary" onclick="verificarPassword()">ACCEDER</button>
+                <button class="btn btn-danger" onclick="cerrarPasswordModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="detalleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 DETALLE DEL REGISTRO</h2>
+                <span class="modal-close" onclick="cerrarDetalleModal()">✖</span>
+            </div>
+            <div id="detalleContenido"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        let modoEliminacionActivo = false;
+        const PASSWORD_CORRECTA = 'Hapack90.';
+
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // ============================================
+        // FUNCIONES DE TURNO - VERSIÓN CORREGIDA
+        // ============================================
+        function obtenerTurnoActualSimple() {
+            const ahora = new Date();
+            const hora = ahora.getHours();
+            const minutos = ahora.getMinutes();
+            const horaDecimal = hora + minutos / 60;
+            
+            if (horaDecimal >= 6 && horaDecimal < 14) {
+                return 'PRIMERO';
+            } else if (horaDecimal >= 14 && horaDecimal < 21.5) {
+                return 'SEGUNDO';
+            } else {
+                return 'TERCERO';
+            }
+        }
+
+        function obtenerFechaTurnoActual() {
+            const ahora = new Date();
+            const hora = ahora.getHours();
+            
+            if (hora >= 0 && hora < 6) {
+                const ayer = new Date(ahora);
+                ayer.setDate(ayer.getDate() - 1);
+                return ayer;
+            }
+            return ahora;
+        }
+
+        function extraerTurnoSimple(turnoCompleto) {
+            if (!turnoCompleto) return 'S/N';
+            if (turnoCompleto.includes('PRIMERO')) return 'PRIMERO';
+            if (turnoCompleto.includes('SEGUNDO')) return 'SEGUNDO';
+            if (turnoCompleto.includes('TERCERO')) return 'TERCERO';
+            return turnoCompleto;
+        }
+
+        function extraerFechaObj(fechaCompleta) {
+            try {
+                const partes = fechaCompleta.split(',')[0].trim().split('/');
+                if (partes.length === 3) {
+                    let dia, mes, anio;
+                    if (partes[0].length === 2 && partes[1].length === 2 && partes[2].length === 4) {
+                        mes = parseInt(partes[0]) - 1;
+                        dia = parseInt(partes[1]);
+                        anio = parseInt(partes[2]);
+                    } else {
+                        dia = parseInt(partes[0]);
+                        mes = parseInt(partes[1]) - 1;
+                        anio = parseInt(partes[2]);
+                    }
+                    return new Date(anio, mes, dia);
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        // ============================================
+        // FUNCIÓN CRÍTICA - VERIFICA SI UN REGISTRO ES DEL TURNO ACTUAL
+        // ============================================
+        function esRegistroDelTurnoActual(registro) {
+            try {
+                const turnoActual = obtenerTurnoActualSimple();
+                const fechaTurnoActual = obtenerFechaTurnoActual();
+                const fechaTurnoActualStr = fechaTurnoActual.toDateString();
+                
+                const turnoRegistro = extraerTurnoSimple(registro.turno);
+                const fechaRegistroObj = extraerFechaObj(registro.fechaCaptura);
+                
+                if (!fechaRegistroObj) return false;
+                
+                return (turnoRegistro === turnoActual && 
+                        fechaRegistroObj.toDateString() === fechaTurnoActualStr);
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // ============================================
+        // TOGGLE MODO ELIMINACIÓN
+        // ============================================
+        function toggleModoEliminacion() {
+            if (modoEliminacionActivo) {
+                modoEliminacionActivo = false;
+                ocultarBotonesEliminar();
+                const btnEliminar = document.getElementById('btnEliminar');
+                btnEliminar.innerHTML = '🔐 ELIMINAR REGISTROS';
+                btnEliminar.classList.remove('btn-danger');
+                btnEliminar.classList.add('btn-warning');
+                mostrarToast('🔒 Modo eliminación desactivado', '#F39C12');
+            } else {
+                mostrarPasswordModal();
+            }
+        }
+
+        function mostrarPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordInput').focus();
+        }
+
+        function cerrarPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function verificarPassword() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === PASSWORD_CORRECTA) {
+                modoEliminacionActivo = true;
+                cerrarPasswordModal();
+                mostrarBotonesEliminar();
+                const btnEliminar = document.getElementById('btnEliminar');
+                btnEliminar.innerHTML = '🔓 DESACTIVAR MODO ELIMINACIÓN';
+                btnEliminar.classList.remove('btn-warning');
+                btnEliminar.classList.add('btn-danger');
+                mostrarToast('🔐 Modo eliminación activado', '#27AE60');
+            } else {
+                alert('❌ Contraseña incorrecta');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function mostrarToast(mensaje, color) {
+            const toast = document.createElement('div');
+            toast.textContent = mensaje;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: ${color};
+                color: white;
+                padding: 12px 22px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 9999;
+                animation: slideIn 0.3s;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3000);
+        }
+
+        function mostrarBotonesEliminar() {
+            document.getElementById('headerEliminar').style.display = 'table-cell';
+            
+            const celdasEliminar = document.querySelectorAll('[id^="celdaEliminar_"]');
+            celdasEliminar.forEach(celda => {
+                celda.style.display = 'table-cell';
+            });
+            
+            document.getElementById('botonesEliminarTodo').style.display = 'block';
+        }
+
+        function ocultarBotonesEliminar() {
+            document.getElementById('headerEliminar').style.display = 'none';
+            
+            const celdasEliminar = document.querySelectorAll('[id^="celdaEliminar_"]');
+            celdasEliminar.forEach(celda => {
+                celda.style.display = 'none';
+            });
+            
+            document.getElementById('botonesEliminarTodo').style.display = 'none';
+        }
+
+        // ============================================
+        // CARGAR DATOS
+        // ============================================
+        function cargarDatos() {
+            const repositorio = JSON.parse(localStorage.getItem('repositorioCharolas')) || [];
+            const tbody = document.getElementById('tablaBody');
+            const turnoActual = obtenerTurnoActualSimple();
+            
+            document.getElementById('fechaActualizacion').innerHTML = `Última actualización: ${new Date().toLocaleString()} | TURNO: ${turnoActual}`;
+            document.getElementById('turnoActualStats').textContent = `TURNO: ${turnoActual}`;
+            document.getElementById('turnoDominos').textContent = `TURNO: ${turnoActual}`;
+            document.getElementById('turnoStarbucks').textContent = `TURNO: ${turnoActual}`;
+            
+            if (repositorio.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="empty-state">
+                            <h3>📭 No hay registros guardados</h3>
+                            <p style="margin-top: 10px;">Captura datos en el formulario y guárdalos en el registro</p>
+                            <button class="btn btn-info" style="margin-top: 20px;" onclick="window.location.href='formulario.html'">
+                                IR AL FORMULARIO
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                actualizarEstadisticasTurnoActual([]);
+                return;
+            }
+
+            repositorio.sort((a, b) => new Date(b.fechaCaptura) - new Date(a.fechaCaptura));
+
+            let html = '';
+            repositorio.forEach((registro) => {
+                const turnoSimple = extraerTurnoSimple(registro.turno);
+                const totalDominos = parseInt(registro.resumen?.totalDominos) || 0;
+                const totalStarbucks = parseInt(registro.resumen?.totalStarbucks) || 0;
+                const totalTiendas = parseInt(registro.resumen?.totalTiendas) || 0;
+                
+                const displayEliminar = modoEliminacionActivo ? 'table-cell' : 'none';
+                
+                html += `
+                    <tr>
+                        <td><small>${registro.fechaCaptura || 'N/A'}</small></td>
+                        <td><span class="badge-turno">${turnoSimple}</span></td>
+                        <td>${registro.datosGenerales?.noEmpleado || ''}</td>
+                        <td>${registro.datosGenerales?.ruta || ''}</td>
+                        <td>${registro.datosGenerales?.bitacora || ''}</td>
+                        <td>${registro.datosGenerales?.unidad || ''}</td>
+                        <td><small style="color: #666;">${(registro.datosGenerales?.comentarios || '').substring(0, 30)}${registro.datosGenerales?.comentarios?.length > 30 ? '...' : ''}</small></td>
+                        <td style="text-align: center; font-weight: 600;">${totalTiendas}</td>
+                        <td style="text-align: center; color: var(--dominos); font-weight: 600;">${totalDominos}</td>
+                        <td style="text-align: center; color: var(--starbucks); font-weight: 600;">${totalStarbucks}</td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-info btn-accion" onclick="verDetalle('${registro.id}')">
+                                👁️ VER
+                            </button>
+                        </td>
+                        <td id="celdaEliminar_${registro.id}" style="display: ${displayEliminar}; text-align: center;">
+                            <button class="btn btn-danger btn-accion" onclick="eliminarRegistro('${registro.id}')">
+                                🗑️ ELIMINAR
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            actualizarEstadisticasTurnoActual(repositorio);
+        }
+
+        // ============================================
+        // ACTUALIZAR ESTADÍSTICAS - CORREGIDO
+        // ============================================
+        function actualizarEstadisticasTurnoActual(repositorio) {
+            let registrosHoy = 0;
+            let totalDominosHoy = 0;
+            let totalStarbucksHoy = 0;
+            let totalTiendasHoy = 0;
+
+            repositorio.forEach(registro => {
+                if (esRegistroDelTurnoActual(registro)) {
+                    registrosHoy++;
+                    totalDominosHoy += parseInt(registro.resumen?.totalDominos) || 0;
+                    totalStarbucksHoy += parseInt(registro.resumen?.totalStarbucks) || 0;
+                    totalTiendasHoy += parseInt(registro.resumen?.totalTiendas) || 0;
+                }
+            });
+
+            document.getElementById('totalRegistrosHoy').textContent = registrosHoy;
+            document.getElementById('totalDominosHoy').textContent = Math.round(totalDominosHoy);
+            document.getElementById('totalStarbucksHoy').textContent = Math.round(totalStarbucksHoy);
+            document.getElementById('totalTiendasHoy').textContent = totalTiendasHoy;
+        }
+
+        // ============================================
+        // VER DETALLE
+        // ============================================
+        function verDetalle(id) {
+            const repositorio = JSON.parse(localStorage.getItem('repositorioCharolas')) || [];
+            const registro = repositorio.find(r => r.id === id);
+            
+            if (!registro) {
+                alert('Registro no encontrado');
+                return;
+            }
+
+            const turnoSimple = extraerTurnoSimple(registro.turno);
+            
+            let fechaParte = 'N/A';
+            let horaParte = 'N/A';
+            
+            if (registro.fechaCaptura) {
+                const partesFecha = registro.fechaCaptura.split(',');
+                if (partesFecha.length > 0) fechaParte = partesFecha[0].trim();
+                if (partesFecha.length > 1) horaParte = partesFecha[1].trim();
+            }
+
+            const comentarios = registro.datosGenerales?.comentarios || 'S/N';
+
+            let html = `
+                <div class="detalle-info">
+                    <div class="detalle-linea1">
+                        <span><strong>Fecha:</strong> ${fechaParte}</span>
+                        <span><strong>Hora:</strong> ${horaParte}</span>
+                        <span><strong>Turno:</strong> ${turnoSimple}</span>
+                        <span><strong>No. Empleado:</strong> ${registro.datosGenerales?.noEmpleado || ''}</span>
+                        <span><strong>Ruta:</strong> ${registro.datosGenerales?.ruta || ''}</span>
+                        <span><strong>Bitácora:</strong> ${registro.datosGenerales?.bitacora || ''}</span>
+                        <span><strong>Unidad:</strong> ${registro.datosGenerales?.unidad || ''}</span>
+                    </div>
+                    <div class="detalle-linea2">
+                        <strong>Comentarios:</strong> ${comentarios}
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 15px; color: var(--primary);">📋 TIENDAS CAPTURADAS</h3>
+                
+                <table class="detalle-table">
+                    <thead>
+                        <tr>
+                            <th>TIENDA</th>
+                            <th>CANTIDAD</th>
+                            <th>DIFERENCIA</th>
+                            <th>CNT. FÍSICA</th>
+                            <th>TIPO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            registro.registros.forEach(tienda => {
+                html += `
+                    <tr>
+                        <td>${tienda.tienda || ''}</td>
+                        <td style="text-align: center;">${parseFloat(tienda.cantidadBitacora) || 0}</td>
+                        <td style="text-align: center;">${parseFloat(tienda.diferencia) || 0}</td>
+                        <td style="text-align: center; font-weight: 600;">${parseFloat(tienda.cantidadFisica) || 0}</td>
+                        <td><span class="badge ${tienda.tipo === 'DOMINO\'S' ? 'badge-dominos' : 'badge-starbucks'}">${tienda.tipo || ''}</span></td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 20px; padding: 15px; background: var(--light); border-radius: 8px;">
+                    <p><strong>RESUMEN:</strong> Total tiendas: ${registro.resumen?.totalTiendas || 0} | Domino's: ${registro.resumen?.totalDominos || 0} | Starbucks: ${registro.resumen?.totalStarbucks || 0}</p>
+                </div>
+            `;
+            
+            document.getElementById('detalleContenido').innerHTML = html;
+            document.getElementById('detalleModal').style.display = 'flex';
+        }
+
+        function cerrarDetalleModal() {
+            document.getElementById('detalleModal').style.display = 'none';
+        }
+
+        // ============================================
+        // ELIMINAR REGISTRO
+        // ============================================
+        function eliminarRegistro(id) {
+            if (!modoEliminacionActivo) {
+                alert('🔐 Debes activar el modo eliminación primero');
+                return;
+            }
+            if (!confirm('¿Eliminar este registro permanentemente?')) return;
+            let repositorio = JSON.parse(localStorage.getItem('repositorioCharolas')) || [];
+            repositorio = repositorio.filter(r => r.id !== id);
+            localStorage.setItem('repositorioCharolas', JSON.stringify(repositorio));
+            cargarDatos();
+            mostrarToast('🗑️ Registro eliminado', '#E74C3C');
+        }
+
+        // ============================================
+        // ELIMINAR TODOS
+        // ============================================
+        function eliminarTodosRegistros() {
+            if (!modoEliminacionActivo) {
+                alert('🔐 Debes activar el modo eliminación primero');
+                return;
+            }
+            if (!confirm('⚠️ ¿ESTÁS SEGURO?\n\nEsto eliminará TODOS los registros guardados permanentemente.\n\nEsta acción NO se puede deshacer.')) return;
+            if (!confirm('ÚLTIMA CONFIRMACIÓN:\n\n¿Eliminar toda la base de datos?')) return;
+            localStorage.removeItem('repositorioCharolas');
+            modoEliminacionActivo = false;
+            ocultarBotonesEliminar();
+            const btnEliminar = document.getElementById('btnEliminar');
+            btnEliminar.innerHTML = '🔐 ELIMINAR REGISTROS';
+            btnEliminar.classList.remove('btn-danger');
+            btnEliminar.classList.add('btn-warning');
+            cargarDatos();
+            alert('✅ Repositorio limpiado exitosamente');
+        }
+
+        // ============================================
+        // EXPORTAR EXCEL
+        // ============================================
+        function exportarExcelConFechas() {
+            const repositorio = JSON.parse(localStorage.getItem('repositorioCharolas')) || [];
+            if (repositorio.length === 0) {
+                alert('No hay registros para exportar');
+                return;
+            }
+
+            let fechaInicio = document.getElementById('fechaInicio').value;
+            let fechaFin = document.getElementById('fechaFin').value;
+            
+            if (!fechaInicio || !fechaFin) {
+                alert('⚠️ Debes seleccionar fecha de inicio y fecha fin para exportar');
+                return;
+            }
+
+            const inicioDate = new Date(fechaInicio + 'T00:00:00');
+            const finDate = new Date(fechaFin + 'T23:59:59');
+
+            const registrosFiltrados = repositorio.filter(registro => {
+                try {
+                    const fechaRegistroObj = extraerFechaObj(registro.fechaCaptura);
+                    if (fechaRegistroObj) {
+                        return fechaRegistroObj >= inicioDate && fechaRegistroObj <= finDate;
+                    }
+                } catch (e) {}
+                return false;
+            });
+
+            if (registrosFiltrados.length === 0) {
+                alert('❌ No hay registros en el rango de fechas seleccionado');
+                return;
+            }
+
+            let dataExcel = [];
+            dataExcel.push([
+                'No. Emp.',
+                'RUTA',
+                'BITACORA',
+                'UNIDAD',
+                'TIENDA',
+                'CANTIDAD',
+                'DIFERENCIA',
+                'CNT. FISICA',
+                'TIPO',
+                'COMENTARIOS',
+                'FECHA',
+                'HORA',
+                'TURNO'
+            ]);
+
+            registrosFiltrados.forEach(registro => {
+                let fechaParte = 'N/A';
+                let horaParte = 'N/A';
+                
+                if (registro.fechaCaptura) {
+                    const partesFecha = registro.fechaCaptura.split(',');
+                    if (partesFecha.length > 0) fechaParte = partesFecha[0].trim();
+                    if (partesFecha.length > 1) horaParte = partesFecha[1].trim();
+                }
+                
+                const turnoSimple = extraerTurnoSimple(registro.turno);
+                
+                registro.registros.forEach(tienda => {
+                    dataExcel.push([
+                        registro.datosGenerales?.noEmpleado || '',
+                        registro.datosGenerales?.ruta || '',
+                        registro.datosGenerales?.bitacora || '',
+                        registro.datosGenerales?.unidad || '',
+                        tienda.tienda || '',
+                        parseFloat(tienda.cantidadBitacora) || 0,
+                        parseFloat(tienda.diferencia) || 0,
+                        parseFloat(tienda.cantidadFisica) || 0,
+                        tienda.tipo || '',
+                        registro.datosGenerales?.comentarios || '',
+                        fechaParte,
+                        horaParte,
+                        turnoSimple
+                    ]);
+                });
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(dataExcel);
+            XLSX.utils.book_append_sheet(wb, ws, 'Registro Charolas');
+            
+            const now = new Date();
+            const fechaStr = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`;
+            const nombreArchivo = `Reporte_Charolas_${fechaInicio}_a_${fechaFin}_${fechaStr}.xlsx`;
+            
+            XLSX.writeFile(wb, nombreArchivo);
+            
+            alert(`✅ EXCEL GENERADO\n\nRango: ${fechaInicio} a ${fechaFin}\nRegistros: ${registrosFiltrados.length}\nTiendas: ${dataExcel.length - 1}`);
+        }
+
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            cargarDatos();
+            ocultarBotonesEliminar();
+            setInterval(cargarDatos, 60000);
+        });
+    </script>
+</body>
+</html>
