@@ -34,8 +34,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Registro de <span>Charolas</span></h1>
-            <div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <img src="logo.png" alt="Logo" style="height: 40px; width: auto;" onerror="this.style.display='none'">
+        <h1>Registro de <span>Charolas</span></h1>
+    </div>
+    <div>
+        <button class="btn btn-info" onclick="window.location.href='formulario.html'">📝 NUEVO</button>
+        <button class="btn btn-primary" onclick="cargarDatos()">🔄 ACTUALIZAR</button>
+    </div>
+</div>
                 <button class="btn btn-info" onclick="window.location.href='formulario.html'">📝 NUEVO</button>
                 <button class="btn btn-primary" onclick="cargarDatos()">🔄 ACTUALIZAR</button>
             </div>
@@ -80,4 +87,5 @@
         setInterval(cargarDatos,30000);
     </script>
 </body>
+
 </html>
