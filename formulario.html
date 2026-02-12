@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Registro - Retorno de Charolas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        :root { --primary: #0A2342; --secondary: #2C4C6B; --accent: #4A89C5; --light: #F5F9FF; --white: #FFFFFF; --gray: #E8EEF2; --dominos: #00A5B0; --starbucks: #006241; --danger: #E74C3C; --success: #27AE60; }
+        body { background: var(--gray); padding: 15px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); height: calc(100vh - 30px); display: flex; flex-direction: column; }
+        .top-row { display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); }
+        .header-compact h1 { color: var(--primary); font-size: 1.5rem; }
+        .header-compact span { color: var(--accent); }
+        .general-form { background: linear-gradient(to right, var(--light), white); padding: 15px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: repeat(5,1fr); gap: 15px; border: 1px solid rgba(74,137,197,0.15); }
+        .form-group, .comentario-group { display: flex; flex-direction: column; }
+        .form-group label, .comentario-group label { font-size: 0.75rem; font-weight: 600; color: var(--primary); text-transform: uppercase; margin-bottom: 3px; }
+        .form-group input, .comentario-group textarea { padding: 8px 12px; border: 1.5px solid var(--gray); border-radius: 8px; font-size: 0.9rem; background: white; text-transform: uppercase; height: 40px; }
+        .comentario-group textarea { height: 40px; min-height: 40px; resize: vertical; }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 12px; }
+        .totals-compact { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .total-item { display: flex; align-items: center; gap: 8px; background: var(--light); padding: 6px 14px; border-radius: 30px; border-left: 4px solid; }
+        .total-item.dominos { border-left-color: var(--dominos); }
+        .total-item.starbucks { border-left-color: var(--starbucks); }
+        .total-item.dominos .total-number { color: var(--dominos); }
+        .total-label { font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; }
+        .total-number { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .turno-badge { background: var(--primary); color: white; padding: 6px 16px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 8px 18px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-info { background: var(--accent); color: white; }
+        .table-section { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+        .table-responsive { overflow-x: auto; overflow-y: auto; border: 1px solid var(--gray); border-radius: 10px; flex: 1; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: var(--primary); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; position: sticky; top: 0; }
+        td { padding: 6px; border-bottom: 1px solid var(--gray); text-align: center; }
+        .table-input { width: 100%; padding: 6px 8px; border: 1.5px solid var(--gray); border-radius: 6px; text-align: center; text-transform: uppercase; }
+        .table-input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+        .table-input[readonly] { background: #F0F4F8; pointer-events: none; }
+        .badge { padding: 4px 8px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; display: inline-block; width: 100%; }
+        .badge-dominos { background: rgba(0,165,176,0.1); color: var(--dominos); border: 1px solid var(--dominos); }
+        .badge-starbucks { background: rgba(0,98,65,0.1); color: var(--starbucks); border: 1px solid var(--starbucks); }
+        .footer { margin-top: 10px; color: var(--secondary); font-size: 0.7rem; text-align: right; border-top: 1px solid var(--gray); padding-top: 10px; }
+        @media (max-width: 768px) { .general-form { grid-template-columns: 1fr; } .action-bar { flex-direction: column; } .button-group { width: 100%; } .btn { flex: 1; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-row">
+            <div class="header-compact">
+                <h1>Bitacora de <span>descarga de charolas</span></h1>
+            </div>
+        </div>
+
+        <div class="general-form">
+            <div class="form-group">
+                <label>No. Empleado *</label>
+                <input type="text" id="noEmpleado" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="form-group">
+                <label>Ruta *</label>
+                <input type="text" id="ruta" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="form-group">
+                <label>Bitácora *</label>
+                <input type="text" id="bitacora" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="form-group">
+                <label>Unidad *</label>
+                <input type="text" id="unidad" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="comentario-group">
+                <label>COMENTARIOS</label>
+                <textarea id="comentarios" oninput="this.value=this.value.toUpperCase()"></textarea>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div class="totals-compact">
+                <div class="total-item dominos">
+                    <span class="total-label">DOMINO'S</span>
+                    <span class="total-number" id="totalDominos">0</span>
+                </div>
+                <div class="total-item starbucks">
+                    <span class="total-label">STARBUCKS</span>
+                    <span class="total-number" id="totalStarbucks">0</span>
+                </div>
+                <span id="turnoActual" class="turno-badge">TURNO: --</span>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="agregarFilas()">➕ AGREGAR 5</button>
+                <button class="btn btn-danger" onclick="limpiarFormulario()">🧹 LIMPIAR</button>
+                <button class="btn btn-success" onclick="validarYGuardar()">💾 GUARDAR</button>
+                <button class="btn btn-info" onclick="window.location.href='repositorio.html'">📊 REGISTRO</button>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-responsive">
+                <table id="tablaTiendas">
+                    <thead><tr><th>Tienda</th><th>Cantidad</th><th>Diferencia</th><th>Cantidad Física</th><th>Tipo</th></tr></thead>
+                    <tbody id="tablaBody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="footer">Sistema de control Registro de retorno de charolas V2.0 | E.Lugo 2026</div>
+    </div>
+
+    <script>
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxTwyrUkNEFO5HDEWBpVKlWL_h0z9bApBJmmHr7A0Xh6q6O9oXrpd3VGh9R4KaoUBNN/exec';
+        let totalFilas = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarTabla(10);
+            actualizarTurno();
+            setInterval(actualizarTurno, 60000);
+        });
+
+        function obtenerTurnoActual() {
+            const hora = new Date().getHours() + new Date().getMinutes()/60;
+            if (hora >= 6 && hora < 14) return 'PRIMERO';
+            if (hora >= 14 && hora < 21.5) return 'SEGUNDO';
+            return 'TERCERO';
+        }
+        function actualizarTurno() { document.getElementById('turnoActual').textContent = `TURNO: ${obtenerTurnoActual()}`; }
+
+        function inicializarTabla(n) { 
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = '';
+            totalFilas = 0;
+            for(let i=0; i<n; i++) agregarFila();
+            actualizarTotales();
+        }
+        function agregarFila() {
+            const f = document.createElement('tr');
+            f.innerHTML = `<td><input class="table-input campo-editable" oninput="this.value=this.value.toUpperCase();calcularFila(this);determinarTipo(this);"></td>
+                           <td><input type="number" class="table-input campo-editable" value="" min="0" oninput="calcularFila(this);"></td>
+                           <td><input type="number" class="table-input campo-editable" value="" min="0" oninput="calcularFila(this);"></td>
+                           <td><input type="number" class="table-input" readonly value="0"></td>
+                           <td><input type="text" class="table-input" readonly></td>`;
+            document.getElementById('tablaBody').appendChild(f);
+            totalFilas++;
+        }
+        function agregarFilas() { for(let i=0;i<5;i++) agregarFila(); actualizarTotales(); }
+        function calcularFila(e) {
+            let f = e.closest('tr').querySelectorAll('input');
+            let cant = parseFloat(f[1].value)||0, dif = parseFloat(f[2].value)||0;
+            f[3].value = cant + dif;
+            actualizarTotales();
+        }
+        function determinarTipo(e) {
+            let f = e.closest('tr').querySelectorAll('input');
+            let t = f[0].value.trim();
+            if(t.startsWith('1')) { f[4].value = 'DOMINO\'S'; f[4].className = 'table-input badge badge-dominos'; }
+            else if(t.length>0) { f[4].value = 'STARBUCKS'; f[4].className = 'table-input badge badge-starbucks'; }
+            else f[4].value = '';
+            actualizarTotales();
+        }
+        function actualizarTotales() {
+            let d=0,s=0;
+            document.querySelectorAll('#tablaBody tr').forEach(r=>{
+                let i=r.querySelectorAll('input');
+                if(i.length>=5) { 
+                    let v=parseFloat(i[3].value)||0;
+                    if(i[4].value==='DOMINO\'S') d+=v;
+                    else if(i[4].value==='STARBUCKS') s+=v;
+                }
+            });
+            document.getElementById('totalDominos').textContent = Math.round(d);
+            document.getElementById('totalStarbucks').textContent = Math.round(s);
+        }
+        function limpiarFormulario() {
+            ['noEmpleado','ruta','bitacora','unidad','comentarios'].forEach(id=>document.getElementById(id).value='');
+            inicializarTabla(10);
+        }
+        function validarYGuardar() {
+            if(!document.getElementById('noEmpleado').value.trim()||!document.getElementById('ruta').value.trim()||!document.getElementById('bitacora').value.trim()||!document.getElementById('unidad').value.trim()) 
+                return alert('⚠️ Campos obligatorios');
+            let tiene = false;
+            document.querySelectorAll('#tablaBody tr').forEach(f=>{ if(f.querySelectorAll('input')[0].value.trim()!='') tiene=true; });
+            if(!tiene) return alert('⚠️ Captura al menos una tienda');
+            guardarEnRepositorio();
+        }
+        async function guardarEnRepositorio() {
+            let reg = [];
+            document.querySelectorAll('#tablaBody tr').forEach(f=>{
+                let i = f.querySelectorAll('input');
+                if(i[0].value.trim()) reg.push({ tienda:i[0].value, cantidadBitacora:parseFloat(i[1].value)||0, diferencia:parseFloat(i[2].value)||0, cantidadFisica:parseFloat(i[3].value)||0, tipo:i[4].value });
+            });
+            let datos = {
+                id: Date.now()+'-'+Math.random().toString(36).substr(2,8),
+                fechaCaptura: new Date().toLocaleString(),
+                turno: obtenerTurnoActual(),
+                datosGenerales: {
+                    noEmpleado: document.getElementById('noEmpleado').value.trim()||'S/N',
+                    ruta: document.getElementById('ruta').value.trim()||'S/N',
+                    bitacora: document.getElementById('bitacora').value.trim()||'S/N',
+                    unidad: document.getElementById('unidad').value.trim()||'S/N',
+                    comentarios: document.getElementById('comentarios').value||'S/N'
+                },
+                totales: { dominos: document.getElementById('totalDominos').textContent, starbucks: document.getElementById('totalStarbucks').textContent },
+                registros: reg,
+                resumen: { totalTiendas: reg.length, totalDominos: document.getElementById('totalDominos').textContent, totalStarbucks: document.getElementById('totalStarbucks').textContent }
+            };
+            let repo = JSON.parse(localStorage.getItem('repositorioCharolas'))||[];
+            repo.unshift(datos);
+            localStorage.setItem('repositorioCharolas', JSON.stringify(repo));
+            alert(`✅ Guardado - ${reg.length} tiendas`);
+            limpiarFormulario();
+        }
+        setInterval(actualizarTotales,300);
+    </script>
+</body>
+</html>
