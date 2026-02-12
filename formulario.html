@@ -451,9 +451,7 @@
             flex-shrink: 0;
         }
 
-        /* ============================================ */
-        /* ANIMACIÓN DE CARGA - LOADER SPINNER          */
-        /* ============================================ */
+        /* LOADER ANIMADO */
         .loader-overlay {
             position: fixed;
             top: 0;
@@ -605,10 +603,10 @@
         <div class="fixed-header-section">
             <div class="top-row">
                 <div class="spacer"></div>
-<div class="logo-container">
-    <!-- Logo eliminado para GitHub Pages -->
-    <div style="color: #999; font-size:0.8rem; padding:10px;">[SISTEMA DE REGISTRO]</div>
-</div>
+                <div class="logo-container">
+                    <!-- Logo eliminado para GitHub Pages -->
+                    <div style="color: #0A2342; font-size:0.9rem; padding:10px; font-weight:600;">[SISTEMA DE REGISTRO]</div>
+                </div>
                 <div class="header-compact">
                     <h1>Bitacora de <span>descarga de charolas</span></h1>
                 </div>
@@ -679,7 +677,9 @@
                             <th>Tipo</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaBody"></tbody>
+                    <tbody id="tablaBody">
+                        <!-- Las filas se generan dinámicamente con JavaScript -->
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -689,9 +689,7 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- LOADER DE CARGA - ANIMACIÓN MIENTRAS GUARDA  -->
-    <!-- ============================================ -->
+    <!-- LOADER DE CARGA -->
     <div id="loaderOverlay" class="loader-overlay">
         <div class="loader-container">
             <div class="loader-spinner"></div>
@@ -731,7 +729,6 @@
         let totalFilas = 0;
         let ultimoRegistroGuardado = null;
 
-        // Previene reenvío de formulario al recargar
         if (window.history.replaceState) {
             window.history.replaceState(null, null, window.location.href);
         }
@@ -743,9 +740,6 @@
             probarConexionGoogleSheets();
         });
 
-        // ============================================
-        // PROBAR CONEXIÓN CON GOOGLE SHEETS
-        // ============================================
         async function probarConexionGoogleSheets() {
             try {
                 const response = await fetch(GAS_URL, {
@@ -759,22 +753,15 @@
             }
         }
 
-        // ============================================
-        // DETERMINAR TURNO - AHORA SOLO PALABRA (SIN PARÉNTESIS)
-        // ============================================
         function obtenerTurnoActual() {
             const ahora = new Date();
             const hora = ahora.getHours();
             const minutos = ahora.getMinutes();
             const horaDecimal = hora + minutos / 60;
 
-            if (horaDecimal >= 6 && horaDecimal < 14) {
-                return 'PRIMERO';
-            } else if (horaDecimal >= 14 && horaDecimal < 21.5) {
-                return 'SEGUNDO';
-            } else {
-                return 'TERCERO';
-            }
+            if (horaDecimal >= 6 && horaDecimal < 14) return 'PRIMERO';
+            else if (horaDecimal >= 14 && horaDecimal < 21.5) return 'SEGUNDO';
+            else return 'TERCERO';
         }
 
         function actualizarTurno() {
@@ -782,9 +769,6 @@
             document.getElementById('turnoActual').textContent = `TURNO: ${turno}`;
         }
 
-        // ============================================
-        // VALIDAR CAMPOS OBLIGATORIOS
-        // ============================================
         function validarCamposObligatorios() {
             const noEmpleado = document.getElementById('noEmpleado').value.trim();
             const ruta = document.getElementById('ruta').value.trim();
@@ -815,7 +799,7 @@
         }
 
         // ============================================
-        // CONTROL DE LOADER - ANIMACIÓN DE CARGA
+        // CONTROL DE LOADER
         // ============================================
         function mostrarLoader(mensaje = 'Enviando a Google Sheets...') {
             document.getElementById('loaderMessage').textContent = mensaje;
@@ -996,7 +980,7 @@
         }
 
         // ============================================
-        // ENVIAR A GOOGLE SHEETS CON TIMEOUT
+        // ENVIAR A GOOGLE SHEETS
         // ============================================
         async function enviarAGoogleSheets(formularioCompleto) {
             try {
@@ -1061,10 +1045,9 @@
         }
 
         // ============================================
-        // GUARDAR EN REPOSITORIO (LOCALSTORAGE + GOOGLE SHEETS) CON LOADER
+        // GUARDAR EN REPOSITORIO
         // ============================================
         async function guardarEnRepositorio() {
-            // MOSTRAR LOADER INMEDIATAMENTE
             mostrarLoader('Preparando datos...');
             
             try {
@@ -1123,7 +1106,6 @@
                     }
                 };
 
-                // Guardar en localStorage
                 let repositorio = JSON.parse(localStorage.getItem('repositorioCharolas')) || [];
                 repositorio.unshift(formularioCompleto);
                 localStorage.setItem('repositorioCharolas', JSON.stringify(repositorio));
@@ -1162,9 +1144,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIONES DEL DIÁLOGO DE CONFIRMACIÓN
-        // ============================================
         function cerrarConfirmacion() {
             document.getElementById('confirmDialog').style.display = 'none';
         }
@@ -1177,5 +1156,4 @@
         setInterval(actualizarTotales, 300);
     </script>
 </body>
-
 </html>
